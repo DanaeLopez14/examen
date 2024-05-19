@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body{
+            background-color: pink;
+            color: purple;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examen</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+</head>
+<body>
+    <center>
+    <form id="messageForm">
+        <label for="message">Ingrese su mensaje:</label>
+        <textarea id="message" rows="4" cols="50"></textarea>
+        <button type="submit">Generar PDF</button>
+    </form>
+    
+    <div id="pdfViewer" style="margin-top: 20px;">
+        <iframe id="pdfFrame" width="500px" height="500px"></iframe>
+    </div>
+    </center>
+    <script>
+        document.getElementById('messageForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            // Obtener el mensaje ingresado por el usuario
+            const message = document.getElementById('message').value;
+            
+            // Mapeo de caracteres para codificar el mensaje
+            const charMap = {
+                'A': 'I', 'B': 'C', 'C': 'Ñ', 'D': 'H', 'E': 'O', 'F': 'M', 'G': 'T',
+                'H': 'L', 'I': 'B', 'J': 'S', 'K': 'A', 'L': 'R', 'M': 'Q', 'N': 'P',
+                'Ñ': 'E', 'O': 'W', 'P': 'J', 'Q': 'F', 'R': 'V', 'S': 'U', 'T': 'K',
+                'U': 'X', 'V': 'D', 'W': 'Y', 'X': 'N', 'Y': 'Z', 'Z': 'G'
+            };
+            
+            // Función para codificar el mensaje
+            function encodeMessage(msg) {
+                let encoded = '';
+                for (let i = 0; i < msg.length; i++) {
+                    const char = msg[i].toUpperCase();
+                    if (charMap[char]) {
+                        encoded += charMap[char]; // Usar el mapeo para codificar la letra
+                    } else {
+                        encoded += char; // Dejar caracteres no alfabéticos sin cambios
+                    }
+                }
+                return encoded;
+            }
+            
+            // Codificar el mensaje
+            const encodedMessage = encodeMessage(message);
+            
+            // Generar el PDF con el mensaje codificado
+            const pdfDoc = await PDFLib.PDFDocument.create();
+            const page = pdfDoc.addPage();
+            const { width, height } = page.getSize();
+            
+            // Definir las propiedades del texto
+            const fontSize = 12;
+            const textWidth = width - 40; // Margen de 20 unidades a cada lado
+            
+            // Insertar el mensaje codificado en la página
+            page.drawText(encodedMessage, {
+                x: 20,
+                y: height - 40 - fontSize, // Margen superior de 20 unidades
+                maxWidth: textWidth,
+                fontSize: fontSize
+            });
+            
+            // Guardar el PDF como un archivo Blob
+            const pdfBytes = await pdfDoc.save();
+            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+            
+            // Crear una URL para el Blob y mostrar el PDF en el iframe
+            const pdfURL = URL.createObjectURL(blob);
+            document.getElementById('pdfFrame').src = pdfURL;
+        });
+    </script>
+</body>
+</html>
