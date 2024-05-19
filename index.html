@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <style>
-        body{
+        body {
             background-color: pink;
             color: purple;
         }
@@ -14,15 +14,15 @@
 </head>
 <body>
     <center>
-    <form id="messageForm">
-        <label for="message">Ingrese su mensaje:</label>
-        <textarea id="message" rows="4" cols="50"></textarea>
-        <button type="submit">Generar PDF</button>
-    </form>
-    
-    <div id="pdfViewer" style="margin-top: 20px;">
-        <iframe id="pdfFrame" width="500px" height="500px"></iframe>
-    </div>
+        <form id="messageForm">
+            <label for="message">Ingrese su mensaje:</label>
+            <textarea id="message" rows="4" cols="50"></textarea>
+            <button type="submit">Generar PDF</button>
+        </form>
+        
+        <div id="pdfViewer" style="margin-top: 20px;">
+            <iframe id="pdfFrame" width="500px" height="500px"></iframe>
+        </div>
     </center>
     <script>
         document.getElementById('messageForm').addEventListener('submit', async function(event) {
@@ -55,8 +55,11 @@
             
             // Codificar el mensaje
             const encodedMessage = encodeMessage(message);
+
+            // Mostrar el mensaje codificado en un alert
+            alert(`Mensaje codificado: ${encodedMessage}`);
             
-            // Generar el PDF con el mensaje codificado
+            // Generar el PDF con el mensaje original y el mensaje codificado
             const pdfDoc = await PDFLib.PDFDocument.create();
             const page = pdfDoc.addPage();
             const { width, height } = page.getSize();
@@ -65,10 +68,17 @@
             const fontSize = 12;
             const textWidth = width - 40; // Margen de 20 unidades a cada lado
             
-            // Insertar el mensaje codificado en la página
-            page.drawText(encodedMessage, {
+            // Insertar el mensaje original y el mensaje codificado en la página
+            page.drawText(`Mensaje original: ${message}`, {
                 x: 20,
-                y: height - 40 - fontSize, // Margen superior de 20 unidades
+                y: height - 60, // Margen superior de 20 unidades
+                maxWidth: textWidth,
+                fontSize: fontSize
+            });
+
+            page.drawText(`Mensaje codificado: ${encodedMessage}`, {
+                x: 20,
+                y: height - 80 - fontSize, // Debajo del mensaje original
                 maxWidth: textWidth,
                 fontSize: fontSize
             });
@@ -84,3 +94,4 @@
     </script>
 </body>
 </html>
+
